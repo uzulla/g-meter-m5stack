@@ -1,0 +1,26 @@
+# ビルドに必要なツール。`mise install` でインストールされる（PlatformIO は uv 経由で入る）
+[tools]
+uv = "latest"
+"pypi:platformio" = "6.2.0"
+
+# `mise run <タスク名>` で実行する。ポートを指定する場合は PORT=/dev/ttyUSB0 mise run upload のように渡す
+[tasks.build]
+description = "ビルド"
+run = "pio run"
+
+[tasks.upload]
+description = "ビルドして書き込み"
+run = 'pio run -t upload ${PORT:+--upload-port "$PORT"}'
+
+[tasks.monitor]
+description = "シリアルモニタ（115200bps）"
+run = 'pio device monitor ${PORT:+--port "$PORT"}'
+
+[tasks.dev]
+description = "書き込んでからシリアルモニタを開く"
+depends = ["upload"]
+run = 'pio device monitor ${PORT:+--port "$PORT"}'
+
+[tasks.clean]
+description = "ビルド成果物を削除"
+run = "pio run -t clean"
