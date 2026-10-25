@@ -1,0 +1,8 @@
+# ログビューワー用。`mise install` で node が入る
+[tools]
+node = "lts"
+
+# `mise run start` で起動。ログのディレクトリ・ポートは LOG_DIR=... PORT=... で指定
+[tasks.start]
+description = "ログビューワーを起動（http://localhost:3000/）"
+run = 'node server.js "${LOG_DIR:-logs}" "${PORT:-3000}"'

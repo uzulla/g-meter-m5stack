@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>G メーター ログビューワー</title>
+<style>
+  :root { --bg:#f4f5f7; --card:#fff; --fg:#1d2330; --muted:#6b7385; --line:#d9dce3; --accent:#2563eb; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.5 -apple-system,"Hiragino Sans",sans-serif; background:var(--bg); color:var(--fg); }
+  header { padding:12px 16px; background:var(--card); border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  h1 { font-size:16px; margin:0 8px 0 0; }
+  main { max-width:1000px; margin:0 auto; padding:16px; }
+  select, input[type=number], button { font:inherit; padding:4px 8px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--fg); }
+  input[type=number] { width:90px; }
+  button { cursor:pointer; } button:hover { border-color:var(--accent); color:var(--accent); }
+  #drop { border:2px dashed var(--line); border-radius:10px; padding:28px; text-align:center; color:var(--muted); background:var(--card); }
+  #drop.over { border-color:var(--accent); color:var(--accent); }
+  .range { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 16px; margin:12px 0; }
+  .range .row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  .sliders { position:relative; height:28px; margin-top:8px; }
+  .sliders input[type=range] { position:absolute; left:0; width:100%; margin:0; pointer-events:none; background:none; -webkit-appearance:none; appearance:none; height:28px; }
+  .sliders input[type=range]::-webkit-slider-thumb { pointer-events:auto; }
+  .sliders input[type=range]::-moz-range-thumb { pointer-events:auto; }
+  .sliders .track { position:absolute; left:0; right:0; top:12px; height:4px; background:var(--line); border-radius:2px; }
+  .sliders .fill { position:absolute; top:12px; height:4px; background:var(--accent); border-radius:2px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin:12px 0; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:8px 12px; }
+  .stat b { display:block; font-size:18px; font-variant-numeric:tabular-nums; }
+  .stat span { color:var(--muted); font-size:12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:16px; }
+  .card h2 { font-size:14px; margin:0 0 6px; display:flex; justify-content:space-between; align-items:center; }
+  .card svg { width:100%; height:auto; display:block; user-select:none; }
+  .hint { color:var(--muted); font-size:12px; }
+  .balls { display:grid; grid-template-columns:minmax(0,560px); justify-content:center; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>G メーター ログビューワー</h1>
+  <label>サーバーのログ: <select id="files"><option value="">(選択)</option></select></label>
+  <label>CSV を開く: <input type="file" id="picker" accept=".csv,text/csv"></label>
+  <span id="fname" class="hint"></span>
+</header>
+<main>
+  <div id="drop">ここに CSV をドラッグ＆ドロップ</div>
+  <div id="viewer" hidden>
+    <div class="range">
+      <div class="row">
+        <label>開始 <input type="number" id="t0" step="0.1"> 秒</label>
+        <label>終了 <input type="number" id="t1" step="0.1"> 秒</label>
+        <button id="reset">全期間</button>
+        <span class="hint">推移グラフ上をドラッグしても範囲を指定できます（Shift+クリックで全期間）。</span>
+      </div>
+      <div class="sliders">
+        <div class="track"></div><div class="fill" id="fill"></div>
+        <input type="range" id="s0" min="0" max="1000" value="0">
+        <input type="range" id="s1" min="0" max="1000" value="1000">
+      </div>
+    </div>
+    <div class="range pan">
+      <div class="row">
+        <span>スクロール（範囲の幅を保ったまま移動）</span>
+        <button id="pan-l2" title="1画面ぶん戻る">◀◀</button><button id="pan-l1" title="半画面ぶん戻る">◀</button>
+        <button id="pan-r1" title="半画面ぶん進む">▶</button><button id="pan-r2" title="1画面ぶん進む">▶▶</button>
+        <span class="hint">グラフ上の横スクロール / Shift+ホイール、←→キーでも移動できます。</span>
+      </div>
+      <input type="range" id="pan" min="0" max="1000" value="0" style="width:100%;margin-top:8px">
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="card"><h2>ピッチ・ロール推移 <button data-dl="trend-pr">SVG</button></h2><div id="trend-pr"></div></div>
+    <div class="card"><h2>G 推移 <button data-dl="trend-g">SVG</button></h2><div id="trend-g"></div></div>
+    <div class="card"><h2>G ボール（範囲内の軌跡） <button data-dl="ball">SVG</button></h2><div class="balls"><div id="ball"></div></div></div>
+  </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
