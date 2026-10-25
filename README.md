@@ -3,6 +3,8 @@
 M5Stack の IMU を使った車載向けメーターです。
 加速度（G）・車体のピッチ / ロールをリアルタイムに表示し、SD カードに 50Hz で記録します。
 
+> 記録した CSV をブラウザで確認できる**ビューアーもあります** → [viewer/README.md](./viewer/README.md)
+
 ![姿勢メーター](./docs/img/attitude.jpg) ![G メーター](./docs/img/gmeter.jpg)
 
 ## ハードウェア
